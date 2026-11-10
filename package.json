@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@vercel/blob": "^2.8.2",
+    "@vercel/speed-insights": "^2.1.0",
     "next": "^16.4.5",
     "pdfkit": "^0.20.2",
     "pg": "^8.23.1",

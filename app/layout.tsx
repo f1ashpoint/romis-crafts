@@ -9,6 +9,7 @@ import { listCategories } from '@/lib/catalog';
 import { store, getSettings } from '@/lib/config';
 import { rupees } from '@/lib/money';
 import { NOPERS_COOKIE } from '@/lib/behavior';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: { default: 'Simply Romi | Handmade in Chennai', template: '%s | Simply Romi' }, description: 'Handmade clay, fibre, ceramics, decor, accessories and wedding favours from a small Chennai studio. Delivered across India.' };
@@ -42,6 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <PrefsToggle initialOn={persOn} />
           </div></footer>
         </CartProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
