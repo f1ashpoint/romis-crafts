@@ -1,6 +1,6 @@
 import PDFDocument from 'pdfkit';
 import { getDb, type Queryable } from './db';
-import { stateCode, store, getSettings } from './config';
+import { stateCode, getStore, getSettings } from './config';
 import { amountInWords } from './money';
 type Row = Record<string, any>;
 
@@ -21,7 +21,7 @@ export async function issueInvoice(orderId: number, now = new Date(), q?: Querya
   // The row lock taken by this UPDATE keeps numbers gapless and unique under concurrent payments.
   const n = (await db.get<{ last: number }>('UPDATE invoice_counters SET last = last + 1 WHERE fy=? RETURNING last', fy))!.last;
   const number = `SR/${fy}/${String(n).padStart(6, '0')}`;
-  await db.run('INSERT INTO invoices (order_id, number, issued_at, seller_json) VALUES (?,?,?,?)', orderId, number, now.toISOString(), JSON.stringify(store()));
+  await db.run('INSERT INTO invoices (order_id, number, issued_at, seller_json) VALUES (?,?,?,?)', orderId, number, now.toISOString(), JSON.stringify(await getStore(db)));
   return number;
 }
 
@@ -32,7 +32,7 @@ export async function getInvoiceView(token: string) {
   const inv = await db.get<Row>('SELECT * FROM invoices WHERE order_id=?', o.id);
   if (!inv) return null;
   const items = await db.all<Row>('SELECT * FROM order_items WHERE order_id=? ORDER BY id', o.id);
-  const seller = JSON.parse(inv.seller_json) as ReturnType<typeof store>;
+  const seller = JSON.parse(inv.seller_json) as Awaited<ReturnType<typeof getStore>>;
   const s = await getSettings();
   return { invoice: { number: inv.number as string, issuedAt: inv.issued_at as string }, order: o, items, seller,
     originState: s.originState, sellerStateCode: stateCode(s.originState), placeOfSupply: o.ship_state as string, placeCode: stateCode(o.ship_state) };

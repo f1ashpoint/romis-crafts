@@ -6,7 +6,7 @@ import CartProvider from '@/components/CartProvider';
 import CartLink from '@/components/CartLink';
 import PrefsToggle from '@/components/PrefsToggle';
 import { listCategories } from '@/lib/catalog';
-import { store, getSettings } from '@/lib/config';
+import { getStore, getSettings } from '@/lib/config';
 import { rupees } from '@/lib/money';
 import { NOPERS_COOKIE } from '@/lib/behavior';
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = { title: { default: 'Simply Romi | Handmade in
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#36422b' };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const cats = await listCategories(); const s = await getSettings(); const st = store();
+  const cats = await listCategories(); const s = await getSettings(); const st = await getStore();
   const persOn = !(await cookies()).get(NOPERS_COOKIE);
   return (
     <html lang="en-IN">
@@ -30,19 +30,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <CartProvider>
           <div className="topbar">Free shipping across India on orders of {rupees(s.freeShippingThresholdPaise)} and above. Prices include GST.</div>
           <header className="site"><div className="wrap bar">
-            <Link href="/" className="logo"><img src="/logo.png" alt="" width="46" height="46" />Simply Romi</Link>
-            <nav className="main" aria-label="Categories">{cats.map((c) => <Link key={c.slug} href={`/category/${c.slug}`}>{c.name}</Link>)}</nav>
+            <Link href="/" className="logo"><img src="/mark.svg" alt="" width="46" height="46" />Simply Romi</Link>
+            <nav className="main" aria-label="Categories">{cats.map((c) => <Link key={c.slug} href={`/category/${c.slug}`}>{c.name}</Link>)}<Link href="/custom">Custom orders</Link></nav>
             <CartLink />
           </div></header>
           <main id="main" className="wrap">{children}</main>
           <footer className="site"><div className="wrap">
             <div className="cols">
               <div><h3 style={{ color: '#fff' }}>{st.name}</h3><p>{st.address}</p>{st.gstin && <p>GSTIN: {st.gstin}</p>}<p>Country of origin: India. Sold and shipped within India only.</p></div>
-              <div><h3 style={{ color: '#fff' }}>Help</h3><p><Link href="/policies">Shipping, returns, privacy</Link><br /><Link href="/loyalty">Studio Circle rewards</Link><br /><a href="https://www.instagram.com/simplyromi.studio" target="_blank" rel="noopener noreferrer">Instagram @simplyromi.studio</a><br />{st.email}{st.phone ? <><br />{st.phone}</> : null}</p></div>
+              <div><h3 style={{ color: '#fff' }}>Help</h3><p><Link href="/policies">Shipping, returns, privacy</Link><br /><Link href="/loyalty">Studio Circle rewards</Link><br /><Link href="/custom">Custom orders</Link><br /><a href={st.instagram} target="_blank" rel="noopener noreferrer">Instagram @simplyromi.studio</a><br />{st.email}{st.phone ? <><br />{st.phone}</> : null}</p></div>
               <div><h3 style={{ color: '#fff' }}>Grievance Officer</h3><p>{st.grievanceName || 'Owner'}<br />{st.grievanceEmail}<br />We acknowledge complaints within 48 hours and resolve them within one month.</p></div>
             </div>
             <PrefsToggle initialOn={persOn} />
           </div></footer>
+        {st.whatsapp && <a className="wa" href={`https://wa.me/${st.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">Chat on WhatsApp</a>}
         </CartProvider>
       </body>
     </html>

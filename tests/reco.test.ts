@@ -11,9 +11,9 @@ describe('recommendations use on-site behaviour only', () => {
     expect(r[0].tier).toBe('new'); expect(r[0].reason).toBe('New from the studio');
   });
   it('ranks purchased category above viewed and excludes owned items', async () => {
-    const bought = await addProduct({ name: 'Bought', categories: ['ceramics'] });
-    const viewed = await addProduct({ name: 'Viewed', categories: ['clay'] });
-    const c = await addProduct({ name: 'Mug2', categories: ['ceramics'] }); const d = await addProduct({ name: 'Charm2', categories: ['clay'] });
+    const bought = await addProduct({ name: 'Bought', categories: ['fiber-textile'] });
+    const viewed = await addProduct({ name: 'Viewed', categories: ['accessories'] });
+    const c = await addProduct({ name: 'Mug2', categories: ['fiber-textile'] }); const d = await addProduct({ name: 'Charm2', categories: ['accessories'] });
     await recordEvent(V, bought, 'purchase'); await recordEvent(V, viewed, 'view');
     const r = await getRecommendations(V, 4);
     expect(r.map((x) => x.product.id)).not.toContain(bought);

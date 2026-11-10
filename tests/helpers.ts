@@ -6,7 +6,7 @@ import { hashPassword } from '@/lib/auth';
 export const freshDb = async () => { await resetDbForTests(); };
 export async function addProduct(over: Partial<z.input<typeof productInput>> = {}) {
   return await saveProduct(productInput.parse({
-    name: 'Test Piece', priceInr: 500, categories: ['ceramics'], variants: [{ label: 'Standard', stock: 5 }], ...over,
+    name: 'Test Piece', priceInr: 500, categories: ['fiber-textile'], variants: [{ label: 'Standard', stock: 5 }], ...over,
   }));
 }
 export async function addAdmin(email = 'owner@example.com', pw = 'correct horse battery') {

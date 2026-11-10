@@ -7,7 +7,7 @@ import { GET as invoiceRoute } from '@/app/api/orders/[token]/invoice/route';
 
 beforeEach(async () => { await freshDb(); });
 const paidOrder = async (over: any = {}) => {
-  const p = await addProduct({ priceInr: 1050, hsn: '6912', categories: ['ceramics'] });
+  const p = await addProduct({ priceInr: 1050, hsn: '6912', categories: ['fiber-textile'] });
   const o = await createOrder({ ...address, items: [{ variantId: await variantOf(p), qty: 2 }], ...over });
   const token = ((await dbGet('SELECT token FROM orders WHERE number=?', o.number)) as any).token; await markPaid(token); return token as string;
 };

@@ -7,7 +7,7 @@ import { PUT as putSettings } from '@/app/api/admin/settings/route';
 import { POST as upload } from '@/app/api/admin/upload/route';
 import { sniff } from '@/lib/media';
 
-const body = { name: 'Via API', priceInr: 300, categories: ['clay'], variants: [{ label: 'Standard', stock: 4 }] };
+const body = { name: 'Via API', priceInr: 300, categories: ['accessories'], variants: [{ label: 'Standard', stock: 4 }] };
 const req = (method: string, cookie?: string, data?: unknown, headers: Record<string, string> = {}) =>
   new Request('http://localhost/api/admin/x', { method, headers: { 'Content-Type': 'application/json', host: 'localhost', ...(cookie ? { cookie: `${ADMIN_COOKIE}=${cookie}` } : {}), ...headers }, body: data ? JSON.stringify(data) : undefined });
 beforeEach(async () => { await freshDb(); resetLoginAttempts(); });

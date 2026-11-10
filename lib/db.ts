@@ -1,4 +1,4 @@
-import { SCHEMA, CATEGORIES } from './schema';
+import { SCHEMA, CATEGORIES, RETIRED_CATEGORIES } from './schema';
 
 /** Minimal async query surface shared by the production (pg) and test/dev (PGlite) drivers. Use `?` placeholders. */
 export interface Queryable {
@@ -76,6 +76,15 @@ async function bootstrap(db: Db, usesPg: boolean) {
     for (const stmt of SCHEMA.split(';\n').map((s) => s.trim()).filter(Boolean)) await q.run(stmt);
     let i = 0;
     for (const c of CATEGORIES) await q.run('INSERT INTO categories (slug, name, blurb, sort) VALUES (?,?,?,?) ON CONFLICT (slug) DO NOTHING', c.slug, c.name, c.blurb, i++);
+    // One-time: retire the clay and ceramics categories. Products that only belonged to them are archived, not deleted.
+    const flag = 'migrated_retire_clay_ceramics';
+    if (!(await q.get('SELECT 1 FROM settings WHERE key=?', flag))) {
+      const ph = RETIRED_CATEGORIES.map(() => '?').join(',');
+      await q.run(`UPDATE products SET status='archived' WHERE id IN (SELECT pc.product_id FROM product_categories pc JOIN categories c ON c.id=pc.category_id GROUP BY pc.product_id HAVING bool_and(c.slug IN (${ph})))`, ...RETIRED_CATEGORIES);
+      await q.run(`DELETE FROM categories WHERE slug IN (${ph})`, ...RETIRED_CATEGORIES);
+      for (const [k, slug] of ['fiber-textile', 'home-decor', 'accessories', 'wedding-events'].entries()) await q.run('UPDATE categories SET sort=? WHERE slug=?', k, slug);
+      await q.run('INSERT INTO settings (key,value) VALUES (?,?) ON CONFLICT (key) DO NOTHING', flag, '"1"');
+    }
   });
 }
 

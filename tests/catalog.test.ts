@@ -4,23 +4,23 @@ import { listProducts, listCategories, getProductBySlug, setArchived, deleteProd
 
 beforeEach(async () => { await freshDb(); });
 describe('catalog', () => {
-  it('has all six categories in navigation order', async () => {
-    expect((await listCategories()).map((c) => c.name)).toEqual(['Air-Dry Clay & Polymer Clay', 'Fiber & Textile Art', 'Handmade Ceramics', 'Aesthetic Home Decor', 'Personal Accessories', 'Wedding & Events']);
+  it('has all four categories in navigation order', async () => {
+    expect((await listCategories()).map((c) => c.name)).toEqual(['Fiber & Textile Art', 'Aesthetic Home Decor', 'Personal Accessories', 'Wedding & Events']);
   });
   it('filters by category, price, stock and made-to-order, and hides archived', async () => {
-    const a = await addProduct({ name: 'Mug', priceInr: 400, categories: ['ceramics'] });
-    await addProduct({ name: 'Charm', priceInr: 1500, categories: ['clay'], variants: [{ label: 'S', stock: 0 }] });
+    const a = await addProduct({ name: 'Mug', priceInr: 400, categories: ['fiber-textile'] });
+    await addProduct({ name: 'Charm', priceInr: 1500, categories: ['accessories'], variants: [{ label: 'S', stock: 0 }] });
     await addProduct({ name: 'Favour', priceInr: 800, categories: ['wedding-events'], variants: [{ label: 'Set', stock: 0 }], leadTimeDays: 10 });
-    expect((await listProducts({ category: 'ceramics' })).map((p) => p.name)).toEqual(['Mug']);
+    expect((await listProducts({ category: 'fiber-textile' })).map((p) => p.name)).toEqual(['Mug']);
     expect((await listProducts({ minPaise: 50000 })).map((p) => p.name).sort()).toEqual(['Charm', 'Favour']);
     expect((await listProducts({ inStock: true })).map((p) => p.name).sort()).toEqual(['Favour', 'Mug']);
     expect((await listProducts({ madeToOrder: true })).map((p) => p.name)).toEqual(['Favour']);
     await setArchived(a, true);
-    expect(await listProducts({ category: 'ceramics' })).toHaveLength(0);
-    expect(await listProducts({ category: 'ceramics', includeArchived: true })).toHaveLength(1);
+    expect(await listProducts({ category: 'fiber-textile' })).toHaveLength(0);
+    expect(await listProducts({ category: 'fiber-textile', includeArchived: true })).toHaveLength(1);
   });
   it('supports multiple categories, variants and per-product GST defaults from settings', async () => {
-    await addProduct({ name: 'Vase', categories: ['ceramics', 'home-decor'], variants: [{ label: 'Blue', stock: 2 }, { label: 'Pink', stock: 3, priceInr: 650 }] });
+    await addProduct({ name: 'Vase', categories: ['fiber-textile', 'home-decor'], variants: [{ label: 'Blue', stock: 2 }, { label: 'Pink', stock: 3, priceInr: 650 }] });
     const p = (await getProductBySlug('vase'))!;
     expect(p.categories).toHaveLength(2); expect(p.gstRate).toBe(5); expect(p.totalStock).toBe(5); expect(p.variants[1].pricePaise).toBe(65000);
   });

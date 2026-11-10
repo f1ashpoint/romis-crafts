@@ -9,7 +9,7 @@ beforeEach(async () => { await freshDb(); });
 
 describe('cart quote', () => {
   it('prices from the database, ignoring anything the client sends', async () => {
-    const p = await addProduct({ priceInr: 500, categories: ['ceramics'] });
+    const p = await addProduct({ priceInr: 500, categories: ['fiber-textile'] });
     const q = await quoteCart([{ variantId: await variantOf(p), qty: 2 }]);
     expect(q.price.itemsTotalPaise).toBe(100000); expect(q.price.shippingPaise).toBe(0);
   });
@@ -39,7 +39,7 @@ describe('checkout', () => {
     expect((await dbGet('SELECT COUNT(*) c FROM orders'))).toEqual({ c: 0 });
   });
   it('splits GST as CGST/SGST in Tamil Nadu, IGST elsewhere, and totals match the quote', async () => {
-    const p = await addProduct({ priceInr: 500, categories: ['ceramics'] });
+    const p = await addProduct({ priceInr: 500, categories: ['fiber-textile'] });
     const items = [{ variantId: await variantOf(p), qty: 1 }];
     const tn = (await getOrderByToken(await tokenOf(items, { state: 'Tamil Nadu', pincode: '600001' })))!.order;
     expect(tn.igst_paise).toBe(0); expect(tn.cgst_paise).toBeGreaterThan(0);

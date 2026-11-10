@@ -5,7 +5,7 @@ export default function Login() {
   async function go(e: React.FormEvent) {
     e.preventDefault(); setBusy(true); setErr('');
     const r = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-    if (r.ok) window.location.href = '/admin/products'; else { setErr((await r.json()).error || 'Could not sign in.'); setBusy(false); }
+    if (r.ok) window.location.href = '/admin/dashboard'; else { setErr((await r.json()).error || 'Could not sign in.'); setBusy(false); }
   }
   return (<div className="section" style={{ maxWidth: 420 }}><h1>Owner sign in</h1>
     <form className="stack" onSubmit={go}>{err && <div className="err" role="alert">{err}</div>}

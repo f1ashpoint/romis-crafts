@@ -1,9 +1,9 @@
-import { store, getSettings } from '@/lib/config';
+import { getStore, getSettings } from '@/lib/config';
 import { rupees } from '@/lib/money';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Shipping, returns and privacy' };
 export default async function Policies() {
-  const s = await getSettings(); const st = store();
+  const s = await getSettings(); const st = await getStore();
   return (<div className="section" style={{ maxWidth: 760 }}><h1>Shipping, returns and privacy</h1>
     <h2>Shipping</h2><p>We deliver within India only. Shipping is {rupees(s.shippingFlatPaise)} per order, and free on orders of {rupees(s.freeShippingThresholdPaise)} and above. The shipping charge includes GST and is shown in your total before you pay. Ready pieces are packed and handed to the courier from Chennai. Made-to-order pieces show their dispatch date on the product page and in your cart.</p>
     <h2>Taxes and invoices</h2><p>All prices are in Indian Rupees and include GST. The rate for each product is shown on its page. A GST invoice is issued for every paid order and can be viewed or downloaded from your order page.</p>
