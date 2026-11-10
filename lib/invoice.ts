@@ -20,7 +20,7 @@ export async function issueInvoice(orderId: number, now = new Date(), q?: Querya
   await db.run('INSERT INTO invoice_counters (fy, last) VALUES (?, 0) ON CONFLICT(fy) DO NOTHING', fy);
   // The row lock taken by this UPDATE keeps numbers gapless and unique under concurrent payments.
   const n = (await db.get<{ last: number }>('UPDATE invoice_counters SET last = last + 1 WHERE fy=? RETURNING last', fy))!.last;
-  const number = `CSC/${fy}/${String(n).padStart(6, '0')}`;
+  const number = `SR/${fy}/${String(n).padStart(6, '0')}`;
   await db.run('INSERT INTO invoices (order_id, number, issued_at, seller_json) VALUES (?,?,?,?)', orderId, number, now.toISOString(), JSON.stringify(store()));
   return number;
 }

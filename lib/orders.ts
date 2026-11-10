@@ -131,7 +131,7 @@ export async function createOrder(raw: unknown, visitorId?: string) {
       price.itemsTotalPaise, price.discountPaise, price.shippingPaise, price.totalPaise, price.taxablePaise, price.cgstPaise, price.sgstPaise, price.igstPaise,
       price.shippingTaxablePaise, price.shippingTaxPaise, s.shippingGstRate, intra ? 1 : 0, input.joinLoyalty ? 1 : 0, redeem.points, ship.id,
       mto.length ? dispatchDate(Math.max(...mto)) : null, visitorId ?? null, expires, getPaymentProvider().id);
-    await q.run('UPDATE orders SET number=? WHERE id=?', `CSC-${1000 + oid}`, oid);
+    await q.run('UPDATE orders SET number=? WHERE id=?', `SR-${1000 + oid}`, oid);
     for (const [i, l] of lines.entries()) {
       const pl = price.lines[i];
       await q.run(`INSERT INTO order_items (order_id, product_id, variant_id, name, variant_label, hsn, gst_rate, qty, unit_paise, gross_paise, discount_paise, taxable_paise, cgst_paise, sgst_paise, igst_paise, engraving, made_to_order, stock_reserved)
@@ -142,7 +142,7 @@ export async function createOrder(raw: unknown, visitorId?: string) {
       await q.run('UPDATE loyalty_members SET points = points - ? WHERE email=?', redeem.points, input.email);
       await q.run('INSERT INTO loyalty_ledger (email, order_id, delta, reason) VALUES (?,?,?,?)', input.email, oid, -redeem.points, 'Redeemed at checkout');
     }
-    return { id: oid, token, number: `CSC-${1000 + oid}`, totalPaise: price.totalPaise };
+    return { id: oid, token, number: `SR-${1000 + oid}`, totalPaise: price.totalPaise };
   });
 
   const pay = await getPaymentProvider().createPayment({ orderNumber: order.number, orderToken: order.token, amountPaise: order.totalPaise, currency: 'INR', customer: { name: input.name, email: input.email, phone: input.phone } });

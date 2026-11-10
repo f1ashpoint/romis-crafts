@@ -1,4 +1,4 @@
-# Romi's Crafts storefront
+# Simply Romi storefront
 
 India-only shop for handmade crafts: INR pricing, GST (CGST/SGST/IGST) invoices as PDF, made-to-order lead times, opt-in loyalty points, an owner admin, and a provider interface for payments and shipping. Next.js 16 on Vercel with Postgres.
 

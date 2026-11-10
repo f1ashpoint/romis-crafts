@@ -33,3 +33,12 @@ describe('catalog', () => {
     expect(dispatchDate(10, new Date('2026-10-13T06:00:00Z'))).toBe('2026-10-23');
   });
 });
+
+import { normaliseSsl } from '@/lib/db';
+describe('database url', () => {
+  it('makes the certificate check explicit', () => {
+    expect(normaliseSsl('postgres://u:p@h/db?sslmode=require')).toBe('postgres://u:p@h/db?sslmode=verify-full');
+    expect(normaliseSsl('postgres://u:p@h/db?x=1&sslmode=prefer&y=2')).toBe('postgres://u:p@h/db?x=1&sslmode=verify-full&y=2');
+    expect(normaliseSsl('postgres://u:p@h/db')).toBe('postgres://u:p@h/db');
+  });
+});

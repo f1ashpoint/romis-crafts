@@ -11,7 +11,7 @@ import { rupees } from '@/lib/money';
 import { NOPERS_COOKIE } from '@/lib/behavior';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { title: { default: 'Chenille Stem Crafts | Handmade in Chennai', template: '%s | Chenille Stem Crafts' }, description: 'Handmade clay, fibre, ceramics, decor, accessories and wedding favours from a small Chennai studio. Delivered across India.' };
+export const metadata: Metadata = { title: { default: 'Simply Romi | Handmade in Chennai', template: '%s | Simply Romi' }, description: 'Handmade clay, fibre, ceramics, decor, accessories and wedding favours from a small Chennai studio. Delivered across India.' };
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#12303b' };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +28,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <CartProvider>
           <div className="topbar">Free shipping across India on orders of {rupees(s.freeShippingThresholdPaise)} and above. Prices include GST.</div>
           <header className="site"><div className="wrap bar">
-            <Link href="/" className="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 28 C10 6 16 34 21 14 C25 0 32 30 36 10" fill="none" stroke="#ff4f8b" strokeWidth="5" strokeLinecap="round"/><path d="M5 28 C10 6 16 34 21 14 C25 0 32 30 36 10" fill="none" stroke="#fff" strokeOpacity=".5" strokeWidth="1.4" strokeDasharray="1 4" strokeLinecap="round"/></svg>Chenille Stem Crafts</Link>
+            <Link href="/" className="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 28 C10 6 16 34 21 14 C25 0 32 30 36 10" fill="none" stroke="#ff4f8b" strokeWidth="5" strokeLinecap="round"/><path d="M5 28 C10 6 16 34 21 14 C25 0 32 30 36 10" fill="none" stroke="#fff" strokeOpacity=".5" strokeWidth="1.4" strokeDasharray="1 4" strokeLinecap="round"/></svg>Simply Romi</Link>
             <nav className="main" aria-label="Categories">{cats.map((c) => <Link key={c.slug} href={`/category/${c.slug}`}>{c.name}</Link>)}</nav>
             <CartLink />
           </div></header>

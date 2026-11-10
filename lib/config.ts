@@ -48,7 +48,7 @@ export async function saveSettings(patch: Partial<Settings>) {
 }
 
 export const store = () => ({
-  name: process.env.STORE_LEGAL_NAME || 'Chenille Stem Crafts',
+  name: process.env.STORE_LEGAL_NAME || 'Simply Romi',
   address: process.env.STORE_ADDRESS || 'Chennai, Tamil Nadu, India',
   gstin: process.env.STORE_GSTIN || '',
   pan: process.env.STORE_PAN || '',

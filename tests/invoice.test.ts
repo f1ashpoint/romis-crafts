@@ -17,16 +17,16 @@ describe('GST invoice', () => {
     const t0 = ((await dbGet('SELECT token FROM orders')) as any).token; expect(await getInvoiceView(t0)).toBeNull();
     const t1 = await paidOrder(); const t2 = await paidOrder();
     const n1 = (await getInvoiceView(t1))!.invoice.number, n2 = (await getInvoiceView(t2))!.invoice.number;
-    expect(n1).toMatch(/^CSC\/\d{4}-\d{2}\/000001$/); expect(n2).toMatch(/\/000002$/);
+    expect(n1).toMatch(/^SR\/\d{4}-\d{2}\/000001$/); expect(n2).toMatch(/\/000002$/);
   });
   it('rolls over on 1 April and is idempotent', async () => {
     const t = await paidOrder(); const oid = ((await dbGet('SELECT id FROM orders WHERE token=?', t)) as any).id;
     expect(await issueInvoice(oid)).toBe((await getInvoiceView(t))!.invoice.number);
     const p = await addProduct({ name: 'Other' }); const o = await createOrder({ ...address, items: [{ variantId: await variantOf(p), qty: 1 }] });
     const id2 = ((await dbGet('SELECT id FROM orders WHERE number=?', o.number)) as any).id;
-    expect(await issueInvoice(id2, new Date('2027-04-02T00:00:00+05:30'))).toBe('CSC/2027-28/000001');
+    expect(await issueInvoice(id2, new Date('2027-04-02T00:00:00+05:30'))).toBe('SR/2027-28/000001');
     const id3 = id2 + 1000; await dbRun('INSERT INTO orders (id,token,number,email,phone,name,ship_line1,ship_city,ship_state,ship_pincode,items_total_paise,shipping_paise,total_paise,taxable_paise,cgst_paise,sgst_paise,igst_paise) VALUES (?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,0)', id3, 'tk', 'n', 'a@b.c', '9', 'n', 'l', 'c', 'Tamil Nadu', '600001');
-    expect(await issueInvoice(id3, new Date('2027-03-31T10:00:00+05:30'))).toBe('CSC/2026-27/000002');
+    expect(await issueInvoice(id3, new Date('2027-03-31T10:00:00+05:30'))).toBe('SR/2026-27/000002');
   });
   it('contains seller GSTIN, HSN, place of supply and tax split, and totals reconcile', async () => {
     const t = await paidOrder({ state: 'Tamil Nadu', pincode: '600001' }); const v = (await getInvoiceView(t))!;

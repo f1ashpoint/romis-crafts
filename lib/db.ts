@@ -31,10 +31,15 @@ function wrap(exec: Exec): Queryable {
   };
 }
 
+/** Makes the strict certificate check explicit, so the pg driver stops warning about changing sslmode semantics. */
+export function normaliseSsl(url: string): string {
+  return url.replace(/([?&]sslmode=)(prefer|require|verify-ca)(?=&|$)/, '$1verify-full');
+}
+
 async function openPg(url: string): Promise<Db> {
   const { Pool, types } = await import('pg');
   types.setTypeParser(20, (v: string) => Number(v));
-  const pool = new Pool({ connectionString: url, max: Number(process.env.PG_POOL_MAX || 5), idleTimeoutMillis: 10_000, connectionTimeoutMillis: 10_000 });
+  const pool = new Pool({ connectionString: normaliseSsl(url), max: Number(process.env.PG_POOL_MAX || 5), idleTimeoutMillis: 10_000, connectionTimeoutMillis: 10_000 });
   pool.on('error', () => { /* idle client errors are retried on next checkout */ });
   const base = wrap(async (sql, params) => { const r = await pool.query(sql, params as any[]); return { rows: r.rows, changes: r.rowCount ?? 0 }; });
   return {
