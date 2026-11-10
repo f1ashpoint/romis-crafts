@@ -11,8 +11,10 @@ import { rupees } from '@/lib/money';
 import { NOPERS_COOKIE } from '@/lib/behavior';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { title: { default: 'Simply Romi | Handmade in Chennai', template: '%s | Simply Romi' }, description: 'Handmade clay, fibre, ceramics, decor, accessories and wedding favours from a small Chennai studio. Delivered across India.' };
-export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#12303b' };
+export const metadata: Metadata = { title: { default: 'Simply Romi | Handmade in Chennai', template: '%s | Simply Romi' }, description: 'Handmade gifts, bouquets and accessories from a small Chennai studio. A little luxury in every detail. Delivered across India.',
+  ...(process.env.SITE_URL ? { metadataBase: new URL(process.env.SITE_URL) } : {}),
+  openGraph: { siteName: 'Simply Romi', images: ['/logo.png'], type: 'website', locale: 'en_IN' } };
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#36422b' };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cats = await listCategories(); const s = await getSettings(); const st = store();
@@ -21,14 +23,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en-IN">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;600;700&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Hanken+Grotesk:wght@400;600;700&display=swap" />
       </head>
       <body>
         <a className="skip" href="#main">Skip to content</a>
         <CartProvider>
           <div className="topbar">Free shipping across India on orders of {rupees(s.freeShippingThresholdPaise)} and above. Prices include GST.</div>
           <header className="site"><div className="wrap bar">
-            <Link href="/" className="logo"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 28 C10 6 16 34 21 14 C25 0 32 30 36 10" fill="none" stroke="#ff4f8b" strokeWidth="5" strokeLinecap="round"/><path d="M5 28 C10 6 16 34 21 14 C25 0 32 30 36 10" fill="none" stroke="#fff" strokeOpacity=".5" strokeWidth="1.4" strokeDasharray="1 4" strokeLinecap="round"/></svg>Simply Romi</Link>
+            <Link href="/" className="logo"><img src="/logo.png" alt="" width="46" height="46" />Simply Romi</Link>
             <nav className="main" aria-label="Categories">{cats.map((c) => <Link key={c.slug} href={`/category/${c.slug}`}>{c.name}</Link>)}</nav>
             <CartLink />
           </div></header>
@@ -36,7 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <footer className="site"><div className="wrap">
             <div className="cols">
               <div><h3 style={{ color: '#fff' }}>{st.name}</h3><p>{st.address}</p>{st.gstin && <p>GSTIN: {st.gstin}</p>}<p>Country of origin: India. Sold and shipped within India only.</p></div>
-              <div><h3 style={{ color: '#fff' }}>Help</h3><p><Link href="/policies">Shipping, returns, privacy</Link><br /><Link href="/loyalty">Studio Circle rewards</Link><br />{st.email}{st.phone ? <><br />{st.phone}</> : null}</p></div>
+              <div><h3 style={{ color: '#fff' }}>Help</h3><p><Link href="/policies">Shipping, returns, privacy</Link><br /><Link href="/loyalty">Studio Circle rewards</Link><br /><a href="https://www.instagram.com/simplyromi.studio" target="_blank" rel="noopener noreferrer">Instagram @simplyromi.studio</a><br />{st.email}{st.phone ? <><br />{st.phone}</> : null}</p></div>
               <div><h3 style={{ color: '#fff' }}>Grievance Officer</h3><p>{st.grievanceName || 'Owner'}<br />{st.grievanceEmail}<br />We acknowledge complaints within 48 hours and resolve them within one month.</p></div>
             </div>
             <PrefsToggle initialOn={persOn} />

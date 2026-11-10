@@ -16,16 +16,12 @@ export default async function Home() {
   return (<>
     <section className="hero"><div className="grid">
       <div>
-        <span className="stemline" aria-hidden="true" /><h1>Twisted, shaped and glazed by hand in Chennai.</h1>
-        <p className="lead">Chenille flowers, clay charms, glazed ceramics and wedding favours, shaped one at a time in a small studio and sent to your door anywhere in India.</p>
-        <div className="row"><Link className="btn gold" href="/shop">Shop the studio</Link><Link className="btn alt" href="/category/wedding-events">Wedding and events</Link></div>
+        <p className="eyebrow">Handmade gifts &amp; bouquets</p><h1>A little luxury in every detail.</h1>
+        <p className="lead">Bouquets, accessories and custom gifts, made by hand one at a time in a small Chennai studio and sent to your door anywhere in India.</p>
+        <div className="row"><Link className="btn gold" href="/shop">Shop the studio</Link><a className="btn alt" href="https://www.instagram.com/simplyromi.studio" target="_blank" rel="noopener noreferrer">Custom order on Instagram</a></div>
         <p className="note" style={{ marginTop: 14 }}>Free delivery from {rupees(s.freeShippingThresholdPaise)}. GST included in every price.</p>
       </div>
-      <svg className="squig" viewBox="0 0 520 420" role="img" aria-label="A twisting chenille stem in pink, gold and teal">
-        {[['#ff4f8b', 'M20 340 C90 40 150 400 230 190 C290 20 340 380 400 150 C430 40 480 200 500 90', 26], ['#ffb703', 'M20 380 C110 150 170 420 250 260 C320 110 380 400 500 200', 22], ['#1f8f68', 'M20 300 C70 200 130 330 200 120 C250 0 330 300 380 90 C420 -20 470 160 500 20', 18]].map(([col, d, w], i) => (
-          <g key={i}><path className="draw" pathLength={1} d={d as string} fill="none" stroke={col as string} strokeWidth={w as number} strokeLinecap="round" />
-          <path d={d as string} fill="none" stroke="#fff" strokeOpacity=".4" strokeWidth={(w as number) * 0.25} strokeDasharray="2 8" strokeLinecap="round" /></g>))}
-      </svg>
+      <img className="mark" src="/logo.png" alt="Simply Romi, handmade gifts and bouquets" width={380} height={380} />
     </div></section>
     <section className="section" aria-labelledby="cats"><h2 id="cats">Shop by craft</h2>
       <div className="cats">{cats.map((c, i) => <Link key={c.slug} href={`/category/${c.slug}`} className={`cat c${i}`}><h3>{c.name}</h3><span>{c.blurb}</span></Link>)}</div>
