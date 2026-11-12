@@ -10,9 +10,9 @@ export default async function Dashboard() {
   await releaseExpiredOrders();
   const db = await getDb(); const low = (await getSettings()).lowStockThreshold;
   const one = async (sql: string, ...p: unknown[]) => (await db.get<{ n: number }>(sql, ...p))!.n;
-  const [toShip, refund, pending, enq, rev30, ord30, products, members] = await Promise.all([
+  const [toShip, refund, pending, review, enq, rev30, ord30, products, members] = await Promise.all([
     one("SELECT COUNT(*)::int n FROM orders WHERE status='paid'"), one("SELECT COUNT(*)::int n FROM orders WHERE status='needs_refund'"),
-    one("SELECT COUNT(*)::int n FROM orders WHERE status='pending_payment'"), one("SELECT COUNT(*)::int n FROM enquiries WHERE status='new'"),
+    one("SELECT COUNT(*)::int n FROM orders WHERE status='pending_payment'"), one("SELECT COUNT(*)::int n FROM orders WHERE status='payment_review'"), one("SELECT COUNT(*)::int n FROM enquiries WHERE status='new'"),
     one(`SELECT COALESCE(SUM(total_paise),0)::bigint n FROM orders WHERE status IN ${PAID} AND paid_at >= ${D30}`), one(`SELECT COUNT(*)::int n FROM orders WHERE status IN ${PAID} AND paid_at >= ${D30}`),
     one("SELECT COUNT(*)::int n FROM products WHERE status='active'"), one('SELECT COUNT(*)::int n FROM loyalty_members'),
   ]);
@@ -24,7 +24,7 @@ export default async function Dashboard() {
     <div className="cats" style={{ margin: 0 }}>
       <Card label="Revenue, last 30 days" value={rupees(rev30)} /><Card label="Paid orders, last 30 days" value={ord30} />
       <Card label="Paid, waiting to ship" value={toShip} href="/admin/orders?status=paid" warn={toShip > 0} /><Card label="Need a refund" value={refund} href="/admin/orders?status=needs_refund" warn={refund > 0} />
-      <Card label="New custom enquiries" value={enq} href="/admin/enquiries" warn={enq > 0} /><Card label="Awaiting payment" value={pending} href="/admin/orders?status=pending_payment" />
+      <Card label="New custom enquiries" value={enq} href="/admin/enquiries" warn={enq > 0} /><Card label="UPI payments to verify" value={review} href="/admin/orders?status=payment_review" warn={review > 0} /><Card label="Awaiting payment" value={pending} href="/admin/orders?status=pending_payment" />
       <Card label="Active products" value={products} href="/admin/products" /><Card label="Rewards members" value={members} href="/admin/customers" /></div>
     <div className="cartgrid" style={{ padding: 0 }}>
       <section className="box"><h2>Recent orders</h2><div className="scroll"><table className="t"><tbody>

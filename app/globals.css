@@ -94,3 +94,54 @@ body{overflow-x:hidden}
 
 .hero .mark{border-radius:28px!important;border:0!important;object-fit:contain}.story img{border-radius:24px!important;border:0!important}.logo img{border:0!important;border-radius:50%;background:#fbf4e6}
 .admin h1{font-size:clamp(1.8rem,3vw,2.4rem)}.admin h2{font-size:1.3rem}
+
+/* ---------- Category showcase ---------- */
+.showcase{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:10px 0 44px}
+.scard{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);position:relative}
+.scard .arch{display:block;aspect-ratio:4/5;border-radius:999px 999px 18px 18px;overflow:hidden;position:relative;background:var(--tint);box-shadow:0 10px 28px rgba(54,66,43,.12);transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.scard .arch img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .4s}
+.scard .arch img.b{opacity:0}
+.scard:hover .arch,.scard:focus-visible .arch{transform:translateY(-6px);box-shadow:0 18px 36px rgba(54,66,43,.2)}
+.scard:hover .arch img,.scard:focus-visible .arch img{transform:scale(1.06)}
+.scard:hover .arch img.b{opacity:1}
+.scard .thumbs{display:none}
+.scard .meta{display:flex;flex-direction:column;gap:3px;padding:14px 4px 0}
+.scard .meta b{font-family:'Cormorant Garamond',serif;font-size:1.35rem;line-height:1.15}
+.scard .meta small{color:var(--ink2);font-size:.88rem}
+.scard .meta em{font-style:normal;font-weight:600;font-size:.85rem;color:var(--rose);margin-top:4px}
+.scard .meta em i{display:inline-block;font-style:normal;transition:transform .25s}.scard:hover .meta em i{transform:translateX(5px)}
+.s0 .arch{background:#f2cf7a}.s1 .arch{background:#f3c6b4}.s2 .arch{background:#cfdcae}.s3 .arch{background:#e2d3e8}
+.s1,.s3{margin-top:28px}
+@media(max-width:900px){.showcase{grid-template-columns:repeat(2,1fr)}.s1,.s3{margin-top:0}}
+
+/* ---------- Motion (all disabled for prefers-reduced-motion) ---------- */
+.heart{position:absolute;top:10px;right:10px;z-index:2;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.9);display:grid;place-items:center;cursor:pointer;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.15);transition:transform .2s,background .2s}
+.heart svg{fill:none;stroke:currentColor;stroke-width:2;transition:fill .2s,stroke .2s}
+.heart:hover{transform:scale(1.1)}.heart.on svg{fill:#d6455d;stroke:#d6455d}
+.heart.lbl{position:static;width:auto;height:auto;border-radius:99px;padding:8px 14px;gap:8px;grid-auto-flow:column;box-shadow:none;border:1px solid var(--line,#d9cdb3);font:inherit;font-weight:600;font-size:.9rem}
+.heart.pop svg{animation:heartpop .45s}
+.pcard .im .alt2{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}.pcard:hover .im .alt2{opacity:1}
+.pcard .im img{transition:transform .6s cubic-bezier(.2,.7,.2,1)}.pcard:hover .im>img:first-child{transform:scale(1.05)}
+.pcard{transition:transform .25s}.pcard:active{transform:scale(.98)}
+.btn{position:relative;overflow:hidden}
+.btn::after{content:"";position:absolute;top:0;left:-75%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);pointer-events:none}
+.btn:hover::after{animation:shine .7s}
+.hdr-r{margin-left:auto;display:flex;align-items:center;gap:10px}.hdr-r .cartlink{margin-left:0}
+.acctlinks{display:flex;align-items:center;gap:10px}.acctlink,.wishlink{text-decoration:none;font-weight:600;color:var(--ink)}.wishlink b{font-size:.75rem;margin-left:2px;color:var(--rose)}
+.acctnav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}.acctnav a,.linkbtn{padding:8px 14px;border-radius:99px;border:1px solid #d9cdb3;text-decoration:none;color:var(--ink);background:transparent;font:inherit;font-weight:600;cursor:pointer}.acctnav a[aria-current=page]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.upi-qr{width:260px;max-width:100%;margin:0 auto;padding:10px;background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,.08)}.upi-qr svg{width:100%;height:auto;display:block}
+.upi-pulse{animation:pulse 1.2s ease-in-out infinite}
+@keyframes heartpop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+@keyframes shine{to{left:130%}}
+@keyframes pulse{50%{opacity:.55}}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes bob{50%{transform:translateY(-8px) rotate(1.2deg)}}
+@keyframes bump{40%{transform:scale(1.35)}}
+html.js .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease var(--d,0ms),transform .7s cubic-bezier(.2,.7,.2,1) var(--d,0ms)}
+html.js .reveal.in{opacity:1;transform:none}
+html.js .grid>.pcard{opacity:0;animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+html.js .grid>.pcard:nth-child(2){animation-delay:.06s}html.js .grid>.pcard:nth-child(3){animation-delay:.12s}html.js .grid>.pcard:nth-child(4){animation-delay:.18s}html.js .grid>.pcard:nth-child(n+5){animation-delay:.24s}
+.hero .eyebrow,.hero h1,.hero .lead,.hero .row{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}.hero h1{animation-delay:.08s}.hero .lead{animation-delay:.16s}.hero .row{animation-delay:.24s}
+.hero .mark{animation:bob 7s ease-in-out infinite}
+.cartlink b{animation:bump .4s}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html.js .reveal,html.js .grid>.pcard{opacity:1!important;transform:none!important}}

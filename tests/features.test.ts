@@ -71,7 +71,7 @@ describe('catalogue migration and sample products', () => {
     process.env.SEED_DEMO = '1';
     try {
       await ensureDemoCatalogue();
-      const ps = await listProducts({ includeArchived: true }); expect(ps.length).toBe(12);
+      const ps = await listProducts({ includeArchived: true }); expect(ps.length).toBe(24);
       expect(ps.every((p) => p.images.length >= 1 && p.images.every((i) => i.url.startsWith('/products/')))).toBe(true);
       expect(ps.every((p) => p.categories.every((c) => ['fiber-textile', 'home-decor', 'accessories', 'wedding-events'].includes(c.slug)))).toBe(true);
     } finally { delete process.env.SEED_DEMO; }

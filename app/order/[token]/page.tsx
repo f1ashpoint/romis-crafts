@@ -5,14 +5,15 @@ import { rupees } from '@/lib/money';
 import { formatDate } from '@/lib/catalog';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Your order', robots: { index: false } };
-const label: Record<string, string> = { pending_payment: 'Waiting for payment', paid: 'Paid. We are preparing your order', shipped: 'Shipped', delivered: 'Delivered', payment_failed: 'Payment failed', expired: 'Expired', cancelled: 'Cancelled', needs_refund: 'Payment received after the hold expired. We will contact you about a refund' };
+const label: Record<string, string> = { pending_payment: 'Waiting for payment', payment_review: 'Payment received, we are confirming it', paid: 'Paid. We are preparing your order', shipped: 'Shipped', delivered: 'Delivered', payment_failed: 'Payment failed', expired: 'Expired', cancelled: 'Cancelled', needs_refund: 'Payment received after the hold expired. We will contact you about a refund' };
 export default async function Order({ params }: { params: Promise<{ token: string }> }) {
   await releaseExpiredOrders();
   const d = await getOrderByToken((await params).token); if (!d) notFound();
   const { order: o, items } = d; const paid = ['paid', 'shipped', 'delivered'].includes(o.status);
   return (<div className="section" style={{ paddingTop: 24 }}>
-    <h1>Order {o.number}</h1><p><span className={`tag ${paid ? 'ok' : o.status === 'pending_payment' ? 'warn' : 'bad'}`}>{label[o.status] ?? o.status}</span></p>
+    <h1>Order {o.number}</h1><p><span className={`tag ${paid ? 'ok' : ['pending_payment', 'payment_review'].includes(o.status) ? 'warn' : 'bad'}`}>{label[o.status] ?? o.status}</span></p>
     {paid && <div className="row noprint" style={{ margin: '12px 0' }}><Link className="btn" href={`/order/${o.token}/invoice`}>View GST invoice</Link><a className="btn alt" href={`/api/orders/${o.token}/invoice`}>Download PDF</a></div>}
+    {o.status === 'payment_review' && <div className="okmsg">Thank you. We have your UPI reference ({o.payment_ref.replace('UPI ', '')}) and are checking it against our bank account. We will confirm your order shortly, and this page will update.</div>}
     {o.status === 'pending_payment' && <div className="row"><Link className="btn gold" href={`/pay/${o.token}`}>Continue to payment</Link></div>}
     {o.dispatch_by && paid && <p>Made-to-order pieces dispatch by {formatDate(o.dispatch_by)}.</p>}
     {o.awb && <p>Tracking number: <b>{o.awb}</b> {o.tracking_url && <a href={o.tracking_url} rel="noopener noreferrer">Track</a>}</p>}

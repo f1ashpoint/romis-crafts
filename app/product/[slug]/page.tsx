@@ -1,3 +1,4 @@
+import WishButton from '@/components/WishButton';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
@@ -26,7 +27,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     <div className="pdp">
       <Gallery images={p.images} />
       <div className="stack">
-        <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.6rem)' }}>{p.name}</h1>
+        <h1 style={{ fontSize: 'clamp(1.8rem,4vw,2.6rem)' }}>{p.name}</h1><div><WishButton productId={p.id} name={p.name} label /></div>
         <p>{p.description}</p>
         <ProductBuy productId={p.id} variants={p.variants} madeToOrder={p.madeToOrder} lowStock={s.lowStockThreshold} engraving={p.engraving} dispatchBy={dispatch} />
         <Upsell items={add} heading="Goes well with this" />

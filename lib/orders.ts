@@ -79,7 +79,7 @@ async function cancelAndRestock(orderId: number, status: 'expired' | 'payment_fa
   const db = await getDb();
   await db.tx(async (q) => {
     const o = await q.get<Row>('SELECT * FROM orders WHERE id=? FOR UPDATE', orderId);
-    if (!o || o.status !== 'pending_payment') return;
+    if (!o || !['pending_payment', 'payment_review'].includes(o.status)) return;
     const items = await q.all<Row>('SELECT variant_id, qty, stock_reserved FROM order_items WHERE order_id=? ORDER BY variant_id', orderId);
     for (const i of items) if (i.stock_reserved) await q.run('UPDATE variants SET stock = stock + ? WHERE id=?', i.qty, i.variant_id);
     if (o.points_redeemed) {
@@ -90,7 +90,7 @@ async function cancelAndRestock(orderId: number, status: 'expired' | 'payment_fa
   });
 }
 
-export async function createOrder(raw: unknown, visitorId?: string) {
+export async function createOrder(raw: unknown, visitorId?: string, userId?: number) {
   const input: CheckoutInput = checkoutSchema.parse(raw);
   if (input.country.toLowerCase() !== 'india' && input.country.toLowerCase() !== 'in')
     throw new HttpError(422, 'Sorry, we deliver within India only.', { country: 'We currently deliver within India only.' });
@@ -125,17 +125,24 @@ export async function createOrder(raw: unknown, visitorId?: string) {
     }
     const oid = await q.insert(`INSERT INTO orders (token, number, email, phone, name, ship_line1, ship_line2, ship_city, ship_state, ship_pincode, ship_country,
       items_total_paise, discount_paise, shipping_paise, total_paise, taxable_paise, cgst_paise, sgst_paise, igst_paise, shipping_taxable_paise, shipping_tax_paise, shipping_gst_rate,
-      intra_state, loyalty_enrolled, points_redeemed, shipping_provider, dispatch_by, visitor_id, expires_at, payment_provider)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?, ?,?,?,?,?,?,?,?,?,?,?, ?,?,?,?,?,?,?,?)`,
+      intra_state, loyalty_enrolled, points_redeemed, shipping_provider, dispatch_by, visitor_id, expires_at, payment_provider, user_id)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?, ?,?,?,?,?,?,?,?,?,?,?, ?,?,?,?,?,?,?,?,?)`,
       token, token.slice(0, 12), input.email, input.phone, input.name, input.line1, input.line2, input.city, input.state, input.pincode, 'India',
       price.itemsTotalPaise, price.discountPaise, price.shippingPaise, price.totalPaise, price.taxablePaise, price.cgstPaise, price.sgstPaise, price.igstPaise,
       price.shippingTaxablePaise, price.shippingTaxPaise, s.shippingGstRate, intra ? 1 : 0, input.joinLoyalty ? 1 : 0, redeem.points, ship.id,
-      mto.length ? dispatchDate(Math.max(...mto)) : null, visitorId ?? null, expires, getPaymentProvider().id);
+      mto.length ? dispatchDate(Math.max(...mto)) : null, visitorId ?? null, expires, getPaymentProvider().id, userId ?? null);
     await q.run('UPDATE orders SET number=? WHERE id=?', `SR-${1000 + oid}`, oid);
     for (const [i, l] of lines.entries()) {
       const pl = price.lines[i];
       await q.run(`INSERT INTO order_items (order_id, product_id, variant_id, name, variant_label, hsn, gst_rate, qty, unit_paise, gross_paise, discount_paise, taxable_paise, cgst_paise, sgst_paise, igst_paise, engraving, made_to_order, stock_reserved)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, oid, l.productId, l.variantId, l.name, l.variantLabel, l.hsn, l.gstRate, l.qty, l.unitPaise, pl.grossPaise, pl.discountPaise, pl.taxablePaise, pl.cgstPaise, pl.sgstPaise, pl.igstPaise, l.engraving, l.madeToOrder ? 1 : 0, reservedIds.has(l.variantId) && !l.madeToOrder ? 1 : 0);
+    }
+    if (userId && input.saveAddress) {
+      const dup = await q.get('SELECT 1 FROM addresses WHERE user_id=? AND line1=? AND pincode=?', userId, input.line1, input.pincode);
+      if (!dup) {
+        const first = !(await q.get('SELECT 1 FROM addresses WHERE user_id=?', userId));
+        await q.run('INSERT INTO addresses (user_id, label, name, phone, line1, line2, city, state, pincode, is_default) VALUES (?,?,?,?,?,?,?,?,?,?)', userId, 'Home', input.name, input.phone, input.line1, input.line2, input.city, input.state, input.pincode, first ? 1 : 0);
+      }
     }
     if (input.joinLoyalty) await q.run('INSERT INTO loyalty_members (email, name) VALUES (?,?) ON CONFLICT(email) DO NOTHING', input.email, input.name);
     if (redeem.points) {

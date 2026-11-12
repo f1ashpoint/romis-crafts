@@ -20,6 +20,7 @@ export const checkoutSchema = z.object({
   pincode: z.string().trim().regex(/^[1-9][0-9]{5}$/, 'Enter a valid 6-digit PIN code'),
   country: z.string().trim().default('India'),
   joinLoyalty: z.boolean().default(false),
+  saveAddress: z.boolean().default(false),
   redeemPoints: z.number().int().min(0).max(100000).default(0),
 });
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

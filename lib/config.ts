@@ -58,13 +58,13 @@ const envStore = () => ({
   grievanceEmail: process.env.GRIEVANCE_OFFICER_EMAIL || process.env.STORE_EMAIL || '',
 });
 
-export type StoreProfile = ReturnType<typeof envStore> & { instagram: string; whatsapp: string; tagline: string };
+export type StoreProfile = ReturnType<typeof envStore> & { instagram: string; whatsapp: string; tagline: string; upiId: string };
 /** Environment values, used as the starting point. Kept sync for code that cannot await. */
 export const store = () => envStore();
-export const STORE_FIELDS = ['name', 'address', 'gstin', 'pan', 'email', 'phone', 'grievanceName', 'grievanceEmail', 'instagram', 'whatsapp', 'tagline'] as const;
+export const STORE_FIELDS = ['name', 'address', 'gstin', 'pan', 'email', 'phone', 'grievanceName', 'grievanceEmail', 'instagram', 'whatsapp', 'tagline', 'upiId'] as const;
 /** The shop's public details: values saved in Admin > Store details win over the environment defaults. */
 export async function getStore(q?: Queryable): Promise<StoreProfile> {
-  const base: StoreProfile = { ...envStore(), instagram: 'https://www.instagram.com/simplyromi.studio', whatsapp: '', tagline: 'A little luxury in every detail' };
+  const base: StoreProfile = { ...envStore(), instagram: 'https://www.instagram.com/simplyromi.studio', whatsapp: '', tagline: 'A little luxury in every detail', upiId: (process.env.UPI_ID || '').trim() };
   try {
     const row = await (q ?? await getDb()).get<{ value: string }>("SELECT value FROM settings WHERE key='storeProfile'");
     if (row) { const v = JSON.parse(row.value); for (const k of STORE_FIELDS) if (typeof v[k] === 'string' && v[k].trim()) (base as any)[k] = v[k].trim(); }

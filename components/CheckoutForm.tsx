@@ -3,11 +3,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from './CartProvider';
 import { useQuote, Totals } from './CartView';
+import { useAccount } from './AccountProvider';
 import { INDIAN_STATES } from '@/lib/states';
 
 export default function CheckoutForm({ originState }: { originState: string }) {
   const { items, ready, clear } = useCart();
   const [f, setF] = useState({ name: '', email: '', phone: '', line1: '', line2: '', city: '', state: originState, pincode: '', country: 'India' });
+  const { user, addresses } = useAccount(); const [save, setSave] = useState(false); const [prefilled, setPrefilled] = useState(false);
+  if (user && !prefilled) { const a = addresses[0]; setPrefilled(true); setF((o) => ({ ...o, name: o.name || a?.name || user.name, email: o.email || user.email, phone: o.phone || a?.phone || user.phone, ...(a ? { line1: a.line1, line2: a.line2, city: a.city, state: a.state, pincode: a.pincode } : {}) })); }
   const [join, setJoin] = useState(false); const [redeem, setRedeem] = useState(0);
   const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [fields, setFields] = useState<Record<string, string>>({});
   const { q, err: qerr } = useQuote({ state: f.state, pincode: f.pincode.length === 6 ? f.pincode : undefined, redeemPoints: redeem || undefined, email: /\S+@\S+\.\S+/.test(f.email) ? f.email : undefined });
@@ -19,7 +22,7 @@ export default function CheckoutForm({ originState }: { originState: string }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault(); setBusy(true); setErr(''); setFields({});
     try {
-      const r = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...f, items, joinLoyalty: join, redeemPoints: redeem }) });
+      const r = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...f, items, joinLoyalty: join, saveAddress: !!user && save, redeemPoints: redeem }) });
       const d = await r.json();
       if (!r.ok) { setErr(d.error || 'We could not place your order.'); setFields(d.fields || {}); setBusy(false); return; }
       clear(); window.location.href = d.redirect;
@@ -31,6 +34,8 @@ export default function CheckoutForm({ originState }: { originState: string }) {
     <form onSubmit={submit} className="cartgrid" noValidate={false}>
       <div className="stack">
         <h2>Delivery details</h2>
+        {!user && <p className="note" style={{ margin: 0 }}><Link href="/account/login?next=/checkout">Sign in</Link> or <Link href="/account/register?next=/checkout">create an account</Link> to fill this in faster and track your order. Or continue as a guest.</p>}
+        {user && addresses.length > 1 && <label className="field">Saved addresses<select onChange={(e) => { const a = addresses.find((x: any) => String(x.id) === e.target.value); if (a) setF({ ...f, name: a.name, phone: a.phone, line1: a.line1, line2: a.line2, city: a.city, state: a.state, pincode: a.pincode }); }}><option value="">Choose a saved address</option>{addresses.map((a: any) => <option key={a.id} value={a.id}>{a.label}: {a.line1}, {a.city}</option>)}</select></label>}
         <div className="form">
           <F k="name" label="Full name" auto="name" /><F k="phone" label="Mobile number" type="tel" auto="tel" hint="10 digits, we only use it for delivery updates" />
           <F k="email" label="Email" type="email" auto="email" full hint="Your invoice link is sent here" />
@@ -40,6 +45,8 @@ export default function CheckoutForm({ originState }: { originState: string }) {
           <F k="pincode" label="PIN code" auto="postal-code" />
           <label className="field">Country<input value={f.country} onChange={set('country')} autoComplete="country-name" aria-invalid={outside || !!fields.country} />{(outside || fields.country) && <small role="alert">We currently deliver within India only.</small>}</label>
         </div>
+        {user && <label className="chk field" style={{ flexDirection: 'row' }}><input type="checkbox" checked={save} onChange={(e) => setSave(e.target.checked)} /><span>Save this address to my account</span></label>}
+        <div className="box stack"><h3 style={{ margin: 0 }}>Payment</h3><p className="note" style={{ margin: 0 }}><b>Pay with UPI.</b> On your phone we open your UPI app (Google Pay, PhonePe, Paytm or any other) with the amount filled in. You can also scan a QR code from another phone.</p></div>
         <div className="box stack">
           <label className="chk field" style={{ flexDirection: 'row' }}><input type="checkbox" checked={join} onChange={(e) => setJoin(e.target.checked)} />
             <span>Join Studio Circle (optional)<br /><span className="note" style={{ fontWeight: 400 }}>Members earn points on every paid order and can use them as a discount on later orders. We use your email only to track your points. <Link href="/loyalty">Full details</Link></span></span></label>

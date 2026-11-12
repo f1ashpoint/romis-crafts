@@ -82,8 +82,28 @@ export async function ensureEnvAdmin() {
   await db.run('INSERT INTO admins (email, password_hash) VALUES (?,?) ON CONFLICT (email) DO NOTHING', email, hashPassword(pw));
 }
 
+/**
+ * Emergency password reset. Set ADMIN_RESET_PASSWORD (10+ characters) in the environment: the next sign-in
+ * applies it to the ADMIN_EMAIL account once per distinct value (a marker is stored), so changing the password
+ * afterwards in Admin > Account sticks. Remove the variable once you are back in.
+ */
+export async function applyEnvReset() {
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase(); const pw = process.env.ADMIN_RESET_PASSWORD;
+  if (!email || !pw || pw.length < 10) return;
+  const db = await getDb();
+  const marker = crypto.createHash('sha256').update(email + ':' + pw).digest('hex');
+  const seen = await db.get<{ value: string }>("SELECT value FROM settings WHERE key='admin_reset_marker'");
+  if (seen?.value === marker) return;
+  await db.tx(async (q) => {
+    if (await q.get('SELECT id FROM admins WHERE email=?', email)) await q.run('UPDATE admins SET password_hash=? WHERE email=?', hashPassword(pw), email);
+    else await q.run('INSERT INTO admins (email, password_hash) VALUES (?,?)', email, hashPassword(pw));
+    await q.run("INSERT INTO settings (key, value) VALUES ('admin_reset_marker', ?) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value", marker);
+  });
+}
+
 export async function login(email: string, password: string): Promise<number | null> {
   await ensureEnvAdmin();
+  await applyEnvReset();
   const row = await (await getDb()).get<{ id: number; password_hash: string }>('SELECT id, password_hash FROM admins WHERE email = ?', email.trim().toLowerCase());
   // Always run a hash so timing does not reveal whether the email exists.
   const ok = verifyPassword(password, row?.password_hash ?? 'scrypt$00$00');

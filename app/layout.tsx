@@ -3,6 +3,9 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import './globals.css';
 import CartProvider from '@/components/CartProvider';
+import AccountProvider from '@/components/AccountProvider';
+import AccountLink from '@/components/AccountLink';
+import RevealOnScroll from '@/components/RevealOnScroll';
 import CartLink from '@/components/CartLink';
 import PrefsToggle from '@/components/PrefsToggle';
 import { listCategories } from '@/lib/catalog';
@@ -20,21 +23,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const cats = await listCategories(); const s = await getSettings(); const st = await getStore();
   const persOn = !(await cookies()).get(NOPERS_COOKIE);
   return (
-    <html lang="en-IN">
+    <html lang="en-IN" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Hanken+Grotesk:wght@400;600;700&display=swap" />
       </head>
       <body>
         <a className="skip" href="#main">Skip to content</a>
-        <CartProvider>
+        <AccountProvider><CartProvider>
           <div className="topbar">Free shipping across India on orders of {rupees(s.freeShippingThresholdPaise)} and above. Prices include GST.</div>
           <header className="site"><div className="wrap bar">
             <Link href="/" className="logo"><img src="/mark.svg" alt="" width="46" height="46" />Simply Romi</Link>
             <nav className="main" aria-label="Categories">{cats.map((c) => <Link key={c.slug} href={`/category/${c.slug}`}>{c.name}</Link>)}<Link href="/custom">Custom orders</Link></nav>
-            <CartLink />
+            <div className="hdr-r"><AccountLink /><CartLink /></div>
           </div></header>
-          <main id="main" className="wrap">{children}</main>
+          <main id="main" className="wrap">{children}</main><RevealOnScroll />
           <footer className="site"><div className="wrap">
             <div className="cols">
               <div><h3 style={{ color: '#fff' }}>{st.name}</h3><p>{st.address}</p>{st.gstin && <p>GSTIN: {st.gstin}</p>}<p>Country of origin: India. Sold and shipped within India only.</p></div>
@@ -44,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <PrefsToggle initialOn={persOn} />
           </div></footer>
         {st.whatsapp && <a className="wa" href={`https://wa.me/${st.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">Chat on WhatsApp</a>}
-        </CartProvider>
+        </CartProvider></AccountProvider>
       </body>
     </html>
   );
